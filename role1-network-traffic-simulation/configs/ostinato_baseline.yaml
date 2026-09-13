@@ -1,0 +1,11 @@
+mode: baseline
+stream_name: benign-mixed-baseline
+destination: 10.0.0.30
+pps: 500
+packet_size: 512
+duration_s: 30
+protocol_mix:
+  tcp: 0.6
+  udp: 0.35
+  dns: 0.05
+note: "Template only; destination must remain inside the lab."

@@ -1,0 +1,8 @@
+mode: baseline
+server: 10.0.0.30
+client: 10.0.0.20
+rate_percent: 10
+max_flows: 1000
+packet_size: 512
+duration_s: 30
+note: "Template only; import into a private TRex lab."

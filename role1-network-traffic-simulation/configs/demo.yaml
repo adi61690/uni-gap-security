@@ -1,0 +1,27 @@
+seed: 42
+output:
+  pcap: data/pcap/role1_demo.pcap
+  labels: data/labels/role1_demo.jsonl
+  manifest: data/labels/role1_demo_manifest.json
+lab:
+  allowed_cidrs:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+    - 127.0.0.0/8
+limits:
+  max_packets_total: 5000
+  max_packets_per_scenario: 1000
+scenarios:
+  benign:
+    packets: 300
+  syn_flood:
+    packets: 500
+  udp_flood:
+    packets: 500
+  slow_http:
+    sessions: 20
+  dns_tunnel:
+    queries: 100
+  c2_beacon:
+    beacons: 40

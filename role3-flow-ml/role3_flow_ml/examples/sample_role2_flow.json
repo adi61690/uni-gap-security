@@ -1,0 +1,9 @@
+{
+  "schema_version":"role2.v2","flow_id":"FLOW-R3-001",
+  "timestamp_start":"2026-09-11T10:42:10Z","timestamp_end":"2026-09-11T10:42:12Z",
+  "duration_seconds":2.0,"src_ip":"10.24.3.17","dst_ip":"172.16.4.8","src_port":49122,"dst_port":443,"protocol":"TCP",
+  "packets":120,"bytes_total":96000,"forward_packets":100,"reverse_packets":20,"forward_bytes":88000,"reverse_bytes":8000,
+  "byte_packet_ratio":800,"directional_symmetry":0.09,"source_ip_entropy":7.8,"destination_ip_entropy":3.1,
+  "unique_source_ips":1,"unique_destination_ips":52,"packet_rate":60,"byte_rate":48000,"packet_sizes":[900,910,880,920,905,895,910,900],
+  "inter_arrival_times":[0.1,0.1,0.1,0.11,0.1,0.1,0.1,0.1],"burstiness":0.88,"tls_metadata":{},"quic_metadata":{},"ingest_source":"pcap"
+}

@@ -1,0 +1,7 @@
+services:
+  role3:
+    build: .
+    ports:
+      - "8002:8002"
+    environment:
+      ROLE3_MODEL_DIR: /app/models

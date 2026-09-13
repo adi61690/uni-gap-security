@@ -1,0 +1,8 @@
+mode: baseline
+client_host: 10.0.0.20
+server_host: 10.0.0.30
+protocol: tcp
+parallel_streams: 4
+duration_s: 30
+bandwidth: 200M
+note: "Run only between owned lab endpoints."

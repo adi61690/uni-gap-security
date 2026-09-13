@@ -1,0 +1,1 @@
+{"ts":"2026-09-11T10:00:00Z","id.orig_h":"10.24.3.17","id.resp_h":"172.16.4.8","id.orig_p":51542,"id.resp_p":443,"proto":"tcp","orig_bytes":1280,"resp_bytes":4200,"ja3":"e7d705a328d9f6","ja3s":"5d2f3c","ja4":"t13d1516h2_8daaf6152771","ssl_version":"TLSv1.3","server_name":"sensor.example"}

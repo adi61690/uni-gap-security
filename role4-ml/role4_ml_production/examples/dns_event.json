@@ -1,0 +1,12 @@
+{
+  "type": "dns",
+  "timestamp": "2026-09-11T17:00:00Z",
+  "flow_id": "FLOW-DNS-001",
+  "source_ip": "10.24.3.17",
+  "destination_ip": "8.8.8.8",
+  "destination_port": 53,
+  "protocol": "DNS",
+  "domain": "x8f92kdl39qmx7z1p4k2.example.com",
+  "dns_record_type": "A",
+  "dns_query_rate": 46.2
+}

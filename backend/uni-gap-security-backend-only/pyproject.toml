@@ -1,0 +1,5 @@
+[project]
+name = "uni-gap-security-backend"
+version = "1.0.0"
+description = "Backend integration service for Uni-Gap Security passive AI monitoring"
+requires-python = ">=3.11"

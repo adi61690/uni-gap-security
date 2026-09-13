@@ -1,0 +1,8 @@
+export type ThreatClass='DDoS'|'Botnet C2'|'DGA / DNS Tunneling'|'Encrypted Malware'|'Recon / Port Scan'|'Data Exfiltration';
+export type Severity='Critical'|'High'|'Medium'|'Low';
+export interface Evidence{entropy?:number;packet_rate?:number;flow_rate?:number;amplification_factor?:number;beacon_interval?:number;iat_cv?:number;destination_count?:number;periodicity_score?:number;dominant_frequency_hz?:number;autocorrelation_peak?:number;dns_entropy?:number;dns_query_length?:number;dns_record_type?:string;dns_ngram_score?:number;dns_query_rate?:number;ja3?:string;ja4?:string;tls_metadata?:string;quic_metadata?:string;packet_size_statistics?:string;timing_statistics?:string;fanout?:number;unique_destination_hosts?:number;unique_destination_ports?:number;scan_rate?:number;outbound_bytes?:number;inbound_bytes?:number;outbound_inbound_ratio?:number;flow_duration?:number;volume_asymmetry?:number}
+export interface Alert{timestamp:string;flow_id:string;threat_class:ThreatClass;threat_subtype:string;severity:Severity;confidence:number;source_ip:string;destination_ip:string;destination_port:number;protocol:string;evidence:Evidence}
+export interface ModelMetrics{name:string;status:string;version:string;precision:number;recall:number;f1:number;prauc:number;fp:number;latency:number}
+export interface AuditEvent{timestamp:string;analyst:string;role:string;event:string;status:string;session:string}
+export interface Notification{id:string;time:string;title:string;detail:string;read:boolean;type:'critical'|'info'|'system'}
+export interface Telemetry{time:string;mbps:number;pps:number;fps:number;packetSize:number;duration:number}

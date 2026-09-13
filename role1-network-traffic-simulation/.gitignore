@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+data/pcap/*.pcap
+data/pcap/*.pcapng
+data/labels/*.jsonl
+data/labels/*.json

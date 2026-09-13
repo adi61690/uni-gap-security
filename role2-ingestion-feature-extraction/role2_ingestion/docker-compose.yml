@@ -1,0 +1,11 @@
+services:
+  role2:
+    build: .
+    ports:
+      - "8100:8100"
+    environment:
+      ROLE2_API_PORT: 8100
+      ROLE4_SERVICE_URL: http://host.docker.internal:8001
+      ROLE2_EXPORT_JSONL: /app/data/role2_features.jsonl
+    volumes:
+      - ./data:/app/data

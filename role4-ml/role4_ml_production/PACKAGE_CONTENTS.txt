@@ -1,0 +1,28 @@
+ROLE 4 ML — FINAL HANDOFF PACKAGE
+
+Core:
+src/role4_ml/features.py              DNS + encrypted traffic features, FFT, autocorrelation, periodicity
+src/role4_ml/evidence.py               Evidence + baseline/anomaly scoring + explanations
+src/role4_ml/sequence_model.py         PyTorch LSTM sequence model
+src/role4_ml/detector.py               Unified inference + frontend Alert adapter
+src/role4_ml/schemas.py                Pydantic input/output contracts
+src/role4_ml/api.py                    FastAPI REST + WebSocket service
+
+Training:
+scripts/train_all.py                  Generates demo data + trains CatBoost + LSTM + baseline profile
+models/*                               Trained demonstration artifacts and metadata
+
+data/*                                Generated demonstration training data
+examples/*                             Ready-to-send JSON observations
+
+tests/*                                Automated feature/detector tests
+README.md                              Complete developer handoff and run instructions
+requirements.txt                       Python dependencies
+config/.env.example                    Environment template
+run_train.bat                          Windows training command
+run_api.bat                            Windows API command
+run_predict.bat                        Windows prediction smoke test
+
+IMPORTANT:
+The included models are trained on synthetic demonstration data to make the package runnable.
+They are not production accuracy claims. Replace with validated labeled telemetry before deployment.

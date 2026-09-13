@@ -1,0 +1,54 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+coverage/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets / local config
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local runtime data
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Generated captures / datasets
+*.pcap
+*.pcapng
+*.cap
+runtime/
+artifacts/
+
+# Local model checkpoints / experiment output
+wandb/
+mlruns/
+checkpoints/
+
+# Archives
+*.zip
+*.tar
+*.gz
+
+# Keep directory markers
