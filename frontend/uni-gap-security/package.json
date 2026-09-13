@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prebuild": "node scripts/copy-lab-data.mjs",
     "start": "next start"
   },
   "dependencies": {

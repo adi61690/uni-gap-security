@@ -21,11 +21,12 @@ interface S {
   threshold: number;
   density: 'comfortable'|'compact';
   animations: boolean;
-  connection: 'LIVE'|'RECONNECTING'|'DISCONNECTED'|'DEMO';
+  connection: 'LIVE'|'RECONNECTING'|'DISCONNECTED'|'DEMO'|'LAB';
   setUser:(u:UserSession|null)=>void;
   logout:()=>void;
   toggleMonitoring:()=>void;
   addAlert:(a:Alert)=>void;
+  setLabData:(alerts:Alert[],telemetry:Telemetry[])=>void;
   markRead:()=>void;
   addAudit:(e:string)=>void;
   setTheme:(t:any)=>void;
@@ -52,6 +53,7 @@ export const useApp=create<S>((set)=>({
   logout:()=>set({user:null,monitoring:false}),
   toggleMonitoring:()=>set(s=>({monitoring:!s.monitoring})),
   addAlert:a=>set(s=>({alerts:[a,...s.alerts].slice(0,120),notifications:[{id:crypto.randomUUID(),time:new Date().toISOString(),title:`New ${a.severity.toLowerCase()} threat detected`,detail:`${a.threat_class} · ${Math.round(a.confidence*100)}% confidence`,read:false,type:(a.severity==='Critical'?'critical':'info') as Notification['type']},...s.notifications].slice(0,40)})),
+  setLabData:(alerts,telemetry)=>set(s=>s.connection==='LIVE'?{}:{alerts,telemetry,connection:'LAB'}),
   markRead:()=>set(s=>({notifications:s.notifications.map(n=>({...n,read:true}))})),
   addAudit:e=>set(s=>({audit:[{timestamp:new Date().toISOString(),analyst:s.user?.name||'Analyst',role:s.user?.role||'Security Analyst',event:e,status:'Success',session:s.user?.session||'SES-DEMO'},...s.audit]})),
   setTheme:t=>set({theme:t}),
@@ -59,5 +61,5 @@ export const useApp=create<S>((set)=>({
   setDensity:d=>set({density:d}),
   setAnimations:b=>set({animations:b}),
   addNotification:n=>set(s=>({notifications:[n,...s.notifications]})),
-  setConnection:s=>set({connection:s}),
+  setConnection:s=>set(s==='LIVE'?{connection:s,alerts:[],telemetry:[]}:{connection:s}),
 }));

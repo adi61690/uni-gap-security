@@ -1,4 +1,4 @@
-import { Alert } from '@/types';
+import { Alert, Severity, Telemetry, ThreatClass } from '@/types';
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws/alerts';
@@ -121,6 +121,55 @@ export class WebSocketService {
     this.ws?.close();
     this.ws = null;
   }
+}
+
+function parseCsvLine(line: string): string[] {
+  const values: string[] = [];
+  let value = '';
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const character = line[index];
+    if (character === '"') {
+      if (quoted && line[index + 1] === '"') { value += '"'; index += 1; } else quoted = !quoted;
+    } else if (character === ',' && !quoted) { values.push(value); value = ''; } else value += character;
+  }
+  values.push(value);
+  return values;
+}
+
+const numberValue = (value: string | undefined): number | undefined => {
+  if (!value) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const threatClassMap: Record<string, ThreatClass> = {
+  BENIGN: 'Benign', SYN_FLOOD: 'DDoS', UDP_FLOOD: 'DDoS', SLOW_HTTP: 'Data Exfiltration',
+  DNS_TUNNEL: 'DGA / DNS Tunneling', DGA: 'DGA / DNS Tunneling', C2_BEACON: 'Botnet C2',
+};
+const threatClass = (label: string): ThreatClass => threatClassMap[label] || 'Recon / Port Scan';
+
+export async function loadLabDataset(basePath = ''): Promise<{ alerts: Alert[]; telemetry: Telemetry[] }> {
+  const response = await fetch(`${basePath}/data/lab_generated_unidirectional_flows.csv`);
+  if (!response.ok) throw new Error(`Lab dataset request failed: ${response.status}`);
+  const lines = (await response.text()).trim().split(/\r?\n/);
+  const headers = parseCsvLine(lines.shift() || '');
+  const rows = lines.map((line) => Object.fromEntries(parseCsvLine(line).map((value, index) => [headers[index], value])));
+  const alerts: Alert[] = rows.map((row) => {
+    const label = row.label || 'BENIGN';
+    const confidence = numberValue(row.ground_truth_confidence) ?? 0;
+    const severity = (['Critical', 'High', 'Medium', 'Low'].includes(row.severity) ? row.severity : 'Low') as Severity;
+    const evidence = {
+      entropy: numberValue(row.source_ip_entropy), packet_rate: numberValue(row.packet_rate), flow_rate: numberValue(row.byte_rate),
+      iat_cv: numberValue(row.iat_std), dominant_frequency_hz: numberValue(row.dominant_frequency_hz), dns_entropy: numberValue(row.dns_entropy),
+      ja3: row.ja3 || undefined, ja4: row.ja4 || undefined, tls_metadata: row.tls_version || undefined, quic_metadata: row.quic_version || undefined,
+      unique_destination_hosts: numberValue(row.unique_destination_hosts), unique_destination_ports: numberValue(row.unique_destination_ports),
+      outbound_bytes: numberValue(row.outbound_bytes), inbound_bytes: numberValue(row.inbound_bytes), outbound_inbound_ratio: numberValue(row.outbound_inbound_ratio),
+    };
+    return { timestamp: row.timestamp, flow_id: row.flow_id, threat_class: threatClass(label), threat_subtype: row.attack_type || label, severity, confidence, source_ip: row.src_ip, destination_ip: row.dst_ip, destination_port: numberValue(row.dst_port) ?? 0, protocol: row.protocol, evidence };
+  });
+  const telemetry: Telemetry[] = rows.map((row) => ({ time: row.timestamp, mbps: (numberValue(row.byte_rate) ?? 0) / 1000000 * 8, pps: numberValue(row.packet_rate) ?? 0, fps: numberValue(row.flow_duration) ? 1 / (numberValue(row.flow_duration) as number) : 0, packetSize: numberValue(row.packet_size_mean) ?? 0, duration: numberValue(row.flow_duration) ?? 0 }));
+  return { alerts, telemetry };
 }
 
 export const ApiService = {
