@@ -6,10 +6,16 @@ import { Guard } from '@/lib/guard';
 import { AuthService, loadLabDataset, WebSocketService } from '@/lib/services';
 export function AppProvider({children}:{children:React.ReactNode}){
   const theme=useApp(s=>s.theme), add=useApp(s=>s.addAlert), path=usePathname();
-  const user=useApp(s=>s.user), setUser=useApp(s=>s.setUser), setConnection=useApp(s=>s.setConnection), setLabData=useApp(s=>s.setLabData);
+  const user=useApp(s=>s.user), setUser=useApp(s=>s.setUser), setAuthReady=useApp(s=>s.setAuthReady), setConnection=useApp(s=>s.setConnection), setLabData=useApp(s=>s.setLabData);
   const socketRef=useRef<WebSocketService|null>(null);
   useEffect(()=>{document.body.classList.toggle('dark',theme==='dark'||(theme==='system'&&matchMedia('(prefers-color-scheme:dark)').matches))},[theme]);
-  useEffect(()=>{let active=true; AuthService.restore().then(u=>{if(active && u && !useApp.getState().user) setUser(u)}); return()=>{active=false}},[setUser]);
+  useEffect(()=>{
+    let active=true;
+    AuthService.restore()
+      .then(u=>{if(active && u && !useApp.getState().user) setUser(u)})
+      .finally(()=>{if(active) setAuthReady(true)});
+    return()=>{active=false};
+  },[setUser,setAuthReady]);
   useEffect(()=>{
     if(!user) return;
     let active=true;

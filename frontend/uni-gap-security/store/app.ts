@@ -12,6 +12,7 @@ interface UserSession {
 
 interface S {
   user: UserSession|null;
+  authReady: boolean;
   theme: 'light'|'dark'|'system';
   alerts: Alert[];
   telemetry: Telemetry[];
@@ -23,6 +24,7 @@ interface S {
   animations: boolean;
   connection: 'LIVE'|'RECONNECTING'|'DISCONNECTED'|'DEMO'|'LAB';
   setUser:(u:UserSession|null)=>void;
+  setAuthReady:(ready:boolean)=>void;
   logout:()=>void;
   toggleMonitoring:()=>void;
   addAlert:(a:Alert)=>void;
@@ -39,6 +41,7 @@ interface S {
 
 export const useApp=create<S>((set)=>({
   user:null,
+  authReady:false,
   theme:'light',
   alerts:[],
   telemetry:[],
@@ -50,6 +53,7 @@ export const useApp=create<S>((set)=>({
   animations:true,
   connection:'DEMO',
   setUser:u=>set({user:u}),
+  setAuthReady:ready=>set({authReady:ready}),
   logout:()=>set({user:null,monitoring:false}),
   toggleMonitoring:()=>set(s=>({monitoring:!s.monitoring})),
   addAlert:a=>set(s=>({alerts:[a,...s.alerts].slice(0,120),notifications:[{id:crypto.randomUUID(),time:new Date().toISOString(),title:`New ${a.severity.toLowerCase()} threat detected`,detail:`${a.threat_class} · ${Math.round(a.confidence*100)}% confidence`,read:false,type:(a.severity==='Critical'?'critical':'info') as Notification['type']},...s.notifications].slice(0,40)})),
