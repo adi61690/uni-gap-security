@@ -149,26 +149,33 @@ const threatClassMap: Record<string, ThreatClass> = {
 };
 const threatClass = (label: string): ThreatClass => threatClassMap[label] || 'Recon / Port Scan';
 
-export async function loadLabDataset(basePath = ''): Promise<{ alerts: Alert[]; telemetry: Telemetry[] }> {
+export async function loadLabFlowRows(basePath = ''): Promise<Record<string, string | number | undefined>[]> {
   const response = await fetch(`${basePath}/data/lab_generated_unidirectional_flows.csv`);
   if (!response.ok) throw new Error(`Lab dataset request failed: ${response.status}`);
   const lines = (await response.text()).trim().split(/\r?\n/);
   const headers = parseCsvLine(lines.shift() || '');
-  const rows = lines.map((line) => Object.fromEntries(parseCsvLine(line).map((value, index) => [headers[index], value])));
-  const alerts: Alert[] = rows.map((row) => {
-    const label = row.label || 'BENIGN';
-    const confidence = numberValue(row.ground_truth_confidence) ?? 0;
-    const severity = (['Critical', 'High', 'Medium', 'Low'].includes(row.severity) ? row.severity : 'Low') as Severity;
-    const evidence = {
-      entropy: numberValue(row.source_ip_entropy), packet_rate: numberValue(row.packet_rate), flow_rate: numberValue(row.byte_rate),
-      iat_cv: numberValue(row.iat_std), dominant_frequency_hz: numberValue(row.dominant_frequency_hz), dns_entropy: numberValue(row.dns_entropy),
-      ja3: row.ja3 || undefined, ja4: row.ja4 || undefined, tls_metadata: row.tls_version || undefined, quic_metadata: row.quic_version || undefined,
-      unique_destination_hosts: numberValue(row.unique_destination_hosts), unique_destination_ports: numberValue(row.unique_destination_ports),
-      outbound_bytes: numberValue(row.outbound_bytes), inbound_bytes: numberValue(row.inbound_bytes), outbound_inbound_ratio: numberValue(row.outbound_inbound_ratio),
-    };
-    return { timestamp: row.timestamp, flow_id: row.flow_id, threat_class: threatClass(label), threat_subtype: row.attack_type || label, severity, confidence, source_ip: row.src_ip, destination_ip: row.dst_ip, destination_port: numberValue(row.dst_port) ?? 0, protocol: row.protocol, evidence };
+  return lines.filter(Boolean).map((line) => {
+    const values = parseCsvLine(line);
+    return Object.fromEntries(headers.map((header, index) => [header, values[index] ?? '']));
   });
-  const telemetry: Telemetry[] = rows.map((row) => ({ time: row.timestamp, mbps: (numberValue(row.byte_rate) ?? 0) / 1000000 * 8, pps: numberValue(row.packet_rate) ?? 0, fps: numberValue(row.flow_duration) ? 1 / (numberValue(row.flow_duration) as number) : 0, packetSize: numberValue(row.packet_size_mean) ?? 0, duration: numberValue(row.flow_duration) ?? 0 }));
+}
+
+export async function loadLabDataset(basePath = ''): Promise<{ alerts: Alert[]; telemetry: Telemetry[] }> {
+  const rows = await loadLabFlowRows(basePath);
+  const alerts: Alert[] = rows.map((row) => {
+    const label = String(row.label || 'BENIGN');
+    const confidence = numberValue(String(row.ground_truth_confidence ?? '')) ?? 0;
+    const severity = (['Critical', 'High', 'Medium', 'Low'].includes(String(row.severity || 'Low')) ? String(row.severity || 'Low') : 'Low') as Severity;
+    const evidence = {
+      entropy: numberValue(String(row.source_ip_entropy ?? '')), packet_rate: numberValue(String(row.packet_rate ?? '')), flow_rate: numberValue(String(row.byte_rate ?? '')),
+      iat_cv: numberValue(String(row.iat_std ?? '')), dominant_frequency_hz: numberValue(String(row.dominant_frequency_hz ?? '')), dns_entropy: numberValue(String(row.dns_entropy ?? '')),
+      ja3: row.ja3 ? String(row.ja3) : undefined, ja4: row.ja4 ? String(row.ja4) : undefined, tls_metadata: row.tls_version ? String(row.tls_version) : undefined, quic_metadata: row.quic_version ? String(row.quic_version) : undefined,
+      unique_destination_hosts: numberValue(String(row.unique_destination_hosts ?? '')), unique_destination_ports: numberValue(String(row.unique_destination_ports ?? '')),
+      outbound_bytes: numberValue(String(row.outbound_bytes ?? '')), inbound_bytes: numberValue(String(row.inbound_bytes ?? '')), outbound_inbound_ratio: numberValue(String(row.outbound_inbound_ratio ?? '')),
+    };
+    return { timestamp: String(row.timestamp || ''), flow_id: String(row.flow_id || ''), threat_class: threatClass(label), threat_subtype: String(row.attack_type || label), severity, confidence, source_ip: String(row.src_ip || ''), destination_ip: String(row.dst_ip || ''), destination_port: numberValue(String(row.dst_port ?? '')) ?? 0, protocol: String(row.protocol || 'TCP'), evidence };
+  });
+  const telemetry: Telemetry[] = rows.map((row) => ({ time: String(row.timestamp || ''), mbps: (numberValue(String(row.byte_rate ?? '')) ?? 0) / 1000000 * 8, pps: numberValue(String(row.packet_rate ?? '')) ?? 0, fps: numberValue(String(row.flow_duration ?? '')) ? 1 / (numberValue(String(row.flow_duration ?? '')) as number) : 0, packetSize: numberValue(String(row.packet_size_mean ?? '')) ?? 0, duration: numberValue(String(row.flow_duration ?? '')) ?? 0 }));
   return { alerts, telemetry };
 }
 
