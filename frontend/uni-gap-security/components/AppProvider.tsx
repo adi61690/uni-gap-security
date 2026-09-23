@@ -24,7 +24,7 @@ export function AppProvider({children}:{children:React.ReactNode}){
 
     const loadFallback=async()=>{
       try {
-        const rows = await loadLabFlowRows('/uni-gap-security');
+        const rows = await loadLabFlowRows(process.env.NEXT_PUBLIC_BASE_PATH || '');
         if(active && useApp.getState().connection !== 'LIVE') {
           setLabReplayData(rows);
           setConnection('LAB');
